@@ -1,2 +1,2 @@
 # Securisk-Repo
-Securisk project repository
+Securisk is a spring boot microservices project

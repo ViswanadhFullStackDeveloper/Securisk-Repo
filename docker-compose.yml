@@ -1,0 +1,46 @@
+version: '3.7'
+services:
+  discovery-service:
+    image: discovery-service:0.0.1-SNAPSHOT
+    build: discovery-service/
+    ports:
+    - 8761:8761
+  config-service:
+    image: config-service:0.0.1-SNAPSHOT
+    build: config-service/
+    ports:
+    - 8088:8088
+  master-service:
+    image: master-service:0.0.1-SNAPSHOT
+    build: master-service/
+    ports:
+    - 8081:8081
+    depends_on:
+    - dbpostgresql
+    links:
+    - config-service
+    - discovery-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+  gateway-service:
+    image: gateway-service:0.0.1-SNAPSHOT
+    build: gateway-service/
+    ports:
+    - 8060:8060
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    links:
+    - config-service
+    - discovery-service
+    - master-service
+  dbpostgresql:
+    image: postgres
+    ports:
+    - 5432:5432
+    environment:
+    - POSTGRES_PASSWORD=securerisk@123
+    - POSTGRES_USER=postgres
+    - POSTGRES_DB=securerisk
